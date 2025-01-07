@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class ErrorResponse(BaseModel):
@@ -9,12 +9,17 @@ class RegisterUserRequest(BaseModel):
     email: str
     password: str
     
-class RegisterUserResponse(BaseModel):
+class Response(BaseModel):
+    id: str = Field(alias="_id")
     fullname: str
     email: str
     phone_number: Optional[str] = None
     password: str
-    
+    type: str
+
+class RegisterUserResponse(Response):
+    token_type: str
+    access_token: str
     
 class LoginUserRequest(BaseModel):
     email: str
@@ -23,7 +28,7 @@ class LoginUserRequest(BaseModel):
 class LoginUserResponse(RegisterUserResponse):
     pass
 
-class GetMeResponse(RegisterUserResponse):
+class GetMeResponse(Response):
     pass
 
 class UpdateMeRequest(BaseModel):
@@ -32,5 +37,5 @@ class UpdateMeRequest(BaseModel):
     phone_number: Optional[str] = None
     password: Optional[str] = None
     
-class UpdateMeResponse(RegisterUserResponse):
+class UpdateMeResponse(Response):
     pass

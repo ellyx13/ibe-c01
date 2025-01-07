@@ -1,8 +1,8 @@
-from fastapi import APIRouter
-
+from fastapi import APIRouter, Depends
+from typing import Annotated
 from . import schemas
 from . import services
-
+from modules.v1.auth.services import decode_access_token
 
 router = APIRouter(prefix="/v1/users", tags=["users"])
 
@@ -26,8 +26,8 @@ async def login(data: schemas.LoginUserRequest):
 @router.get("/me", status_code=200, response_model=schemas.GetMeResponse, responses= {
                 423: {"model": schemas.ErrorResponse, "description": "Database is empty"}, 
                 })
-async def get_me():
-    result = await services.get_me()
+async def get_me(user_id: Annotated[str, Depends(decode_access_token)]):
+    result = await services.get_me(user_id=user_id)
     return schemas.GetMeResponse(**result) 
 
 @router.put("/me", status_code=200, response_model=schemas.UpdateMeResponse, responses= {
@@ -39,5 +39,5 @@ async def update_me(data: schemas.UpdateMeRequest):
     return schemas.UpdateMeResponse(**result) 
 
 @router.delete("/me", status_code=204)
-async def delete_me():
+async def delete_me(is_admin: Annotated[str, Depends(check_admin)]):
     await services.delete_me()

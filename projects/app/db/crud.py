@@ -31,6 +31,7 @@ class BaseCRUD:
     async def get_by_id(self, _id) -> dict:
         query = {"_id": ObjectId(_id)}
         document = await self.collection.find_one(query)
+        document["_id"] = str(document["_id"])
         return document
     
     async def get_by_field(self, field, value) -> list:
