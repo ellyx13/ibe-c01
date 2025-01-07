@@ -1,0 +1,7 @@
+services:
+  db:
+    image: mongo:latest
+    ports:
+      - "27030:27017"
+    volumes:
+      - ./data:/data/db
