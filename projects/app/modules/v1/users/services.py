@@ -4,12 +4,13 @@ from . import model
 from db.crud import BaseCRUD
 from db.config import DATABASE_URL, DATABASE_NAME
 from modules.v1.auth.services import create_access_token
-
+from datetime import datetime
 
 user_crud = BaseCRUD(database_url=DATABASE_URL, database_name=DATABASE_NAME, collection_name="users")
 
 async def register_user(data: schemas.RegisterUserRequest) -> model.Users:
     data["type"] = "user"
+    data["created_at"] = datetime.now()
     user = model.Users(**data).model_dump()
     user_id = await user_crud.save(user)
     result =  await user_crud.get_by_id(_id=user_id)
@@ -43,8 +44,20 @@ async def check_modified(data: dict, users: model.Users) -> bool:
             return True
     return False
 
-async def update_me(data: schemas.UpdateMeRequest) -> model.Users:
-    pass
 
-async def delete_me():
-    pass
+async def update_me(data: schemas.UpdateMeRequest, current_user: str) -> model.Users:
+    user = await get_me(user_id=current_user)
+    if not await check_modified(data=data, users=user):
+        raise HTTPException(304, detail="No data is modified")
+    data['updated_at'] = datetime.now()
+    await user_crud.update_by_id(_id=current_user, new_data=data)
+    return await user_crud.get_by_id(_id=current_user)
+
+async def delete_me(current_user: str):
+    await user_crud.delete_by_id(_id=current_user)
+
+async def is_admin(user_id: str) -> bool:
+    user = await get_me(user_id=user_id)
+    if user['type'] == "admin":
+        return True
+    return False

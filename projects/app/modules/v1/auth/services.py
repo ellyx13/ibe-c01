@@ -2,6 +2,7 @@ import jwt
 import time
 from .config import SECRET_KEY, ALGORITHM
 from fastapi import HTTPException, Request
+from modules.v1.users import services as user_services
 
 async def create_access_token(user_id: str, expire_in_minutes: int = 5) -> str:
     data = {}
@@ -11,7 +12,7 @@ async def create_access_token(user_id: str, expire_in_minutes: int = 5) -> str:
     encoded = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
     return encoded
 
-async def decode_access_token(request: Request) -> str | bool:
+async def require_authentication(request: Request) -> str | bool:
     try:
         token = request.headers.get("Authorization")
         if token is None:
@@ -24,3 +25,11 @@ async def decode_access_token(request: Request) -> str | bool:
         return decoded['user_id']
     except Exception:
         raise HTTPException(401, detail="Unauthorized")
+    
+async def require_admin(request: Request) -> str | bool:
+    try:
+        user_id = await require_authentication(request)
+        if not await user_services.is_admin(user_id=user_id):
+            raise HTTPException(403, detail="Forbidden")
+    except Exception:
+        raise HTTPException(403, detail="Forbidden")
