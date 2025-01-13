@@ -28,9 +28,11 @@ class BaseCRUD:
         result = await self.collection.delete_one(query)
         return result.deleted_count > 0
     
-    async def get_by_id(self, _id) -> dict:
+    async def get_by_id(self, _id) -> dict | None:
         query = {"_id": ObjectId(_id)}
         document = await self.collection.find_one(query)
+        if  document is None:
+            return None
         document["_id"] = str(document["_id"])
         return document
     

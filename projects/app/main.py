@@ -3,8 +3,18 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from fastapi.openapi.utils import get_openapi
 from modules.v1.users.routers import router as users_router
+from contextlib import asynccontextmanager
+from modules.v1.users.services import create_default_admin
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start commands when the app starts
+    await create_default_admin()
+    yield
+    # Start commands when the app stops
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(users_router)  
 

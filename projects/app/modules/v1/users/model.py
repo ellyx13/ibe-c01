@@ -7,7 +7,7 @@ class Users(BaseModel):
     fullname: str
     email: str
     phone_number: Optional[str] = None
-    password: str
+    password: bytes
     type: Literal["user", "admin"]
     created_at: datetime
     updated_at: Optional[datetime] = None

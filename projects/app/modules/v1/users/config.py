@@ -1,0 +1,4 @@
+
+ADMIN_EMAIL_DEFAULT = 'admin@localhost.dev'
+ADMIN_PASSWORD_DEFAULT = 'admin'
+ADMIN_FULLNAME_DEFAULT = 'Admin'

@@ -38,6 +38,6 @@ async def update_me(data: schemas.UpdateMeRequest, user_id: Annotated[str, Depen
     result = await services.update_me(data=data, current_user=user_id)
     return schemas.UpdateMeResponse(**result) 
 
-@router.delete("/me", status_code=204)
-async def delete_me(is_admin: Annotated[str, Depends(require_admin)], user_id: Annotated[str, Depends(require_authentication)]):
-    await services.delete_me(current_user=user_id)
+@router.delete("/{_id}", status_code=204)
+async def delete_me(_id: str, _: Annotated[str, Depends(require_admin)], __: Annotated[str, Depends(require_authentication)]):
+    await services.delete_me(current_user=_id)
